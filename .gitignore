@@ -6,4 +6,9 @@
 /01_train_code/detect.py
 /data
 /02_EDA/base_eda.ipynb
-
+/03_train_val/data
+*.pth
+*.pyc
+/02_EDA/03_data_cleaning.ipynb
+/02_EDA/model.py
+/02_EDA/loss.py
