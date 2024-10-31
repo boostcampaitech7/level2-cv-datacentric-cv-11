@@ -1,8 +1,9 @@
-/code/data
-/code/pths
-/code/__pycache__
-/code/model.py
-/code/loss.py
-/code/east_dataset.py
-/code/detect.py
+/01_train_code/pths
+/01_train_code/__pycache__
+/01_train_code/model.py
+/01_train_code/loss.py
+/01_train_code/east_dataset.py
+/01_train_code/detect.py
+/data
+/02_EDA/base_eda.ipynb
 
