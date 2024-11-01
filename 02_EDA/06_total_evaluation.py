@@ -14,21 +14,11 @@ def read_json(filename):
     return ann
 
 
-# 대회 학습 데이터로 주어진 태국어 영수증으로 테스트 진행.
-# 자신의 경로에 맞게 파일 경로를 수정.
-# ground truth와 prediction 파일 경로 설정
-gt_path = "./data/thai_receipt/ufo/val.json"
-pred_path = "./data/thai_receipt/ufo/thai_val_predict.json"
+# 평가를 수행할 언어 목록
+languages = ["chinese", "japanese", "thai", "vietnamese"]
 
-# gt와 pred 데이터를 읽어오기
-gt_data = read_json(gt_path)
-pred_data = read_json(pred_path)
-
-# 필요한 형식으로 gt와 pred 데이터를 변환
-gt_dict = {image_id: [word['points'] for word in data['words'].values()]
-           for image_id, data in gt_data['images'].items()}
-pred_dict = {image_id: [word['points'] for word in data['words'].values()]
-             for image_id, data in pred_data['images'].items()}
+# 결과를 저장할 딕셔너리
+overall_results = {}
 
 
 # %%
@@ -411,19 +401,48 @@ def calc_deteval_metrics(pred_bboxes_dict, gt_bboxes_dict, transcriptions_dict=N
 # %%
 
 
-# calc_deteval_metrics 함수를 이용하여 gt와 pred 비교
-eval_params = default_evaluation_params()
-results = calc_deteval_metrics(pred_dict, gt_dict, transcriptions_dict=None,
-                               eval_hparams=eval_params, bbox_format='rect', verbose=True)
+# 각 언어에 대해 평가 수행
+for lang in languages:
+    # ground truth와 prediction 파일 경로 설정
+    gt_path = f"./data/{lang}_receipt/ufo/val.json"
+    pred_path = f"./data/{lang}_receipt/ufo/{lang}_val_predict.json"
 
-# 결과 출력
-print("Overall Evaluation Metrics:")
-print(f"Precision: {results['total']['precision']:.4f}")
-print(f"Recall: {results['total']['recall']:.4f}")
-print(f"Hmean: {results['total']['hmean']:.4f}")
+    # gt와 pred 데이터를 읽어오기
+    gt_data = read_json(gt_path)
+    pred_data = read_json(pred_path)
 
-# 이미지별 상세 메트릭 출력
-print("\nDetailed per-sample Metrics:")
-for sample_name, metrics in results['per_sample'].items():
-    print(
-        f"{sample_name}: Precision={metrics['precision']:.4f}, Recall={metrics['recall']:.4f}, Hmean={metrics['hmean']:.4f}")
+    # 필요한 형식으로 gt와 pred 데이터를 변환
+    gt_dict = {image_id: [word['points'] for word in data['words'].values()]
+               for image_id, data in gt_data['images'].items()}
+    pred_dict = {image_id: [word['points'] for word in data['words'].values()]
+                 for image_id, data in pred_data['images'].items()}
+
+    # 평가 수행
+    eval_params = default_evaluation_params()
+    results = calc_deteval_metrics(pred_dict, gt_dict, transcriptions_dict=None,
+                                   eval_hparams=eval_params, bbox_format='rect', verbose=False)
+
+    # 언어별 결과 저장
+    overall_results[lang] = {
+        'precision': results['total']['precision'],
+        'recall': results['total']['recall'],
+        'hmean': results['total']['hmean']
+    }
+
+    # 언어별 상세 출력
+    print(f"\nResults for {lang.capitalize()}:")
+    print(f"Precision: {overall_results[lang]['precision']:.4f}")
+    print(f"Recall: {overall_results[lang]['recall']:.4f}")
+    print(f"Hmean: {overall_results[lang]['hmean']:.4f}")
+
+# %%
+
+# 전체 평균 계산
+average_precision = np.mean([res['precision'] for res in overall_results.values()])
+average_recall = np.mean([res['recall'] for res in overall_results.values()])
+average_hmean = np.mean([res['hmean'] for res in overall_results.values()])
+
+print("\nOverall Average Metrics across all languages:")
+print(f"Average Precision: {average_precision:.4f}")
+print(f"Average Recall: {average_recall:.4f}")
+print(f"Average Hmean: {average_hmean:.4f}")
