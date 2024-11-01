@@ -31,11 +31,11 @@ def split_json_by_language(input_json_path):
 
     # 언어별 JSON 파일로 저장
     for lang, lang_data in language_data.items():
-        output_path = f"./split/{language_map[lang]}_output.json"
+        output_path = f"./val_split/{language_map[lang]}_output.json"
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(lang_data, f, ensure_ascii=False, indent=4)
         print(f"Saved {output_path}")
 
 
 # 예측 json 파일 경로
-split_json_by_language('1024_output.json')
+split_json_by_language('tv_val_output.json')
