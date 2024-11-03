@@ -34,6 +34,7 @@ def parse_args():
     parser.add_argument('--learning_rate', type=float, default=1e-3)
     parser.add_argument('--max_epoch', type=int, default=150)
     parser.add_argument('--save_interval', type=int, default=5)
+    parser.add_argument('--resume', type=str, default=None)
     
     args = parser.parse_args()
 
@@ -44,7 +45,7 @@ def parse_args():
 
 
 def do_training(data_dir, model_dir, device, image_size, input_size, num_workers, batch_size,
-                learning_rate, max_epoch, save_interval):
+                learning_rate, max_epoch, save_interval, resume):
     dataset = SceneTextDataset(
         data_dir,
         split='train',
@@ -65,6 +66,12 @@ def do_training(data_dir, model_dir, device, image_size, input_size, num_workers
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[max_epoch // 2], gamma=0.1)
+    
+    #이어서 학습하기
+    if resume is not None:
+        resume_path = osp.join(model_dir,resume)
+        model.load_state_dict(torch.load(resume_path,weights_only=True))
+        print('model_loaded_successfully!')
 
     model.train()
     for epoch in range(max_epoch):
@@ -97,7 +104,7 @@ def do_training(data_dir, model_dir, device, image_size, input_size, num_workers
             if not osp.exists(model_dir):
                 os.makedirs(model_dir)
 
-            ckpt_fpath = osp.join(model_dir, 'latest.pth')
+            ckpt_fpath = osp.join(model_dir, 'latest_1103.pth')
             torch.save(model.state_dict(), ckpt_fpath)
 
 

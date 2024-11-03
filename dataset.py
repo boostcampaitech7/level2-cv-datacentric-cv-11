@@ -333,6 +333,19 @@ def filter_vertices(vertices, labels, ignore_under=0, drop_under=0):
 
     return new_vertices, new_labels
 
+def sharpening(image, strength):
+    image = image.astype('uint8')
+    gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    b = (1 - strength) / 8
+    sharpening_kernel = np.array([[b, b, b],
+                                  [b, strength, b],
+                                  [b, b, b]])
+    kernel = np.ones((3, 3), np.uint8)
+    gray_image = cv2.erode(gray_image, kernel, iterations=1)
+    output = cv2.filter2D(gray_image, -1, sharpening_kernel)
+    output = cv2.cvtColor(output, cv2.COLOR_GRAY2RGB)
+    return output
+
 
 class SceneTextDataset(Dataset):
     def __init__(self, root_dir,
@@ -407,6 +420,7 @@ class SceneTextDataset(Dataset):
         if image.mode != 'RGB':
             image = image.convert('RGB')
         image = np.array(image)
+        image = sharpening(image, strength=7)
 
         funcs = []
         if self.color_jitter:
