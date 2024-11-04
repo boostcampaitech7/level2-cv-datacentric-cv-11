@@ -1,3 +1,4 @@
+# %%
 import json
 import os
 import shutil
@@ -5,11 +6,11 @@ from sklearn.model_selection import train_test_split
 
 # 언어 지정
 # # chinese, thai, vietnamese, japanese
-language = "vietnamese"
+language = "custom"
 
 # 경로 설정
-json_path = f'../data/{language}_receipt/ufo/train.json'
-image_folder = f'../data/{language}_receipt/img/train/'
+json_path = f'./data/{language}_receipt/ufo/train.json'
+image_folder = f'./data/{language}_receipt/img/train/'
 train_image_folder = f'{language}_train_images'
 val_image_folder = f'{language}_val_images'
 

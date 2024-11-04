@@ -13,3 +13,6 @@
 /02_EDA/model.py
 /02_EDA/loss.py
 /02_EDA/data
+*.jpg
+*.json
+*.parquet
