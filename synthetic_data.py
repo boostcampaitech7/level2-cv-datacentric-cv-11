@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import os
+import copy
 
 #이미지, 글자 masking, 영수증 masking 생성
 def synthetic_preprocess(img_file, json_file):
@@ -100,7 +101,7 @@ def matching_receipts(img_background,img_document,mask):
 def synthtic_receipts(background,receipt):
     paper_image = background[0]
     receipt_image = receipt[0]
-    
+
     receipt_mask = np.zeros(receipt_image.shape[:2])
     paper_mask = np.zeros(paper_image.shape[:2])
 
@@ -124,46 +125,55 @@ def visualize_img(img):
 
 def main():
     languages = ['chinese','japanese','thai','vietnamese']
+    image_files_list = []
+    json_files_list = []
 
     for lang in languages:
         data_path = '/data/ephemeral/home/code/data/'
-        output_dir = data_path + lang + '_receipt/img/train'
         json_path = data_path + lang +'_receipt/ufo/' + 'train.json'
         image_files = glob.glob(data_path + lang +'_receipt/img/' + 'train' + '/*.jpg')
-        new_json={'images':[]}
-        new_json_path = data_path + lang +'_receipt/ufo/' + 'synthetic.json'
+        image_files_list.append(image_files)
 
         with open(json_path, 'r') as json_file:
             jf = json.load(json_file)
+        json_files_list.append(jf)
+
+    for lang in languages:
+        output_dir = data_path + lang + '_receipt/img/synthetic'
+        os.makedirs(output_dir,exist_ok=True)
+        new_json={'images':{}}
+        new_json_path = data_path + lang +'_receipt/ufo/' + 'synthetic.json'
+
         change_language = languages.copy()
+        image_files = image_files_list[languages.index(lang)]
+        j_f = copy.deepcopy(json_files_list[languages.index(lang)])
+        change_language.remove(lang)
 
         for id in range(len(image_files)):
-            img = cv2.imread(image_files[id])
-            image_name = image_files[id].split('/')[-1]
-            j_file = jf['images'][image_name]
-
-            try: 
-                change_language.remove(lang)
-            except:
-                pass
             back_lang = random.choice(change_language)
-            
-            img_background = synthetic_preprocess(image_files[id],jf)
-            img_document = synthetic_preprocess(image_files[id],jf)
+            back_image_files = image_files_list[languages.index(back_lang)]
+            back_jf = copy.deepcopy(json_files_list[languages.index(back_lang)])
+            try:
+                img_background = synthetic_preprocess(back_image_files[id],back_jf)
+            except:
+                print('fail')
+                img_background = synthetic_preprocess(image_files[id],j_f)
 
+            img_document = synthetic_preprocess(image_files[id],j_f)
             image, json_f = synthtic_receipts(img_background,img_document)
 
             # 이미지 저장 (필요한 경우 주석 해제)
             output_path = os.path.join(output_dir, f'output_{id}.jpg')
             cv2.imwrite(output_path, image)
 
-            new_json['images'].append({'output_'+str(id)+'.jpg':json_f})
-
-            with open(new_json_path, 'w') as json_file:
-                json.dump(new_json, json_file, indent=4)
+            
+            with open(new_json_path, 'w') as new_json_file:
+                json.dump(new_json, new_json_file, indent=4)
+            
 
         print(lang + " finish")
     print("All images processed")
+
 
 if __name__ == '__main__':
     main()

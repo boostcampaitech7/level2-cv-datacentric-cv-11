@@ -333,6 +333,8 @@ def filter_vertices(vertices, labels, ignore_under=0, drop_under=0):
 
     return new_vertices, new_labels
 
+#################################################################################
+#Seungsoo: add Sharpening
 def sharpening(image, strength):
     image = image.astype('uint8')
     gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -345,11 +347,11 @@ def sharpening(image, strength):
     output = cv2.filter2D(gray_image, -1, sharpening_kernel)
     output = cv2.cvtColor(output, cv2.COLOR_GRAY2RGB)
     return output
-
+#################################################################################
 
 class SceneTextDataset(Dataset):
     def __init__(self, root_dir,
-                 split='train',
+                 split,
                  image_size=2048,
                  crop_size=1024,
                  ignore_under_threshold=10,
@@ -420,7 +422,10 @@ class SceneTextDataset(Dataset):
         if image.mode != 'RGB':
             image = image.convert('RGB')
         image = np.array(image)
+
+        #add sharpening#######################
         image = sharpening(image, strength=7)
+        ######################################
 
         funcs = []
         if self.color_jitter:

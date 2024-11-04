@@ -9,6 +9,7 @@ import cv2
 from torch import cuda
 from model import EAST
 from tqdm import tqdm
+import numpy as np
 
 from detect import detect
 
@@ -35,6 +36,21 @@ def parse_args():
 
     return args
 
+#################################################################################
+#Seungsoo: add Sharpening
+def sharpening(image, strength):
+    image = image.astype('uint8')
+    gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    b = (1 - strength) / 8
+    sharpening_kernel = np.array([[b, b, b],
+                                  [b, strength, b],
+                                  [b, b, b]])
+    kernel = np.ones((3, 3), np.uint8)
+    gray_image = cv2.erode(gray_image, kernel, iterations=1)
+    output = cv2.filter2D(gray_image, -1, sharpening_kernel)
+    output = cv2.cvtColor(output, cv2.COLOR_GRAY2RGB)
+    return output
+#################################################################################
 
 def do_inference(model, ckpt_fpath, data_dir, input_size, batch_size, split='test'):
     model.load_state_dict(torch.load(ckpt_fpath, map_location='cpu'))
@@ -46,8 +62,8 @@ def do_inference(model, ckpt_fpath, data_dir, input_size, batch_size, split='tes
     
     for image_fpath in tqdm(sum([glob(osp.join(data_dir, f'{lang}_receipt/img/{split}/*')) for lang in LANGUAGE_LIST], [])):
         image_fnames.append(osp.basename(image_fpath))
-
-        images.append(cv2.imread(image_fpath)[:, :, ::-1])
+        #Add Sharpening#################################################
+        images.append(sharpening(cv2.imread(image_fpath),7)[:, :, ::-1])
         if len(images) == batch_size:
             by_sample_bboxes.extend(detect(model, images, input_size))
             images = []
@@ -80,7 +96,7 @@ def main(args):
                                 args.batch_size, split='test')
     ufo_result['images'].update(split_result['images'])
 
-    output_fname = 'output_1103.csv'
+    output_fname = 'output_1104_only_train_sharpening.csv'
     with open(osp.join(args.output_dir, output_fname), 'w') as f:
         json.dump(ufo_result, f, indent=4)
 
