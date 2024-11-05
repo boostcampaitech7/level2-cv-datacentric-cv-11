@@ -12,9 +12,9 @@ import os
 # train-00002-of-00004-688fe1305a55e5cc.parquet
 # train-00003-of-00004-2d0cd200555ed7fd.parquet
 
-num = 3
-
-df = pd.read_parquet('./data/origin/train-00003-of-00004-2d0cd200555ed7fd.parquet')
+num = "test"
+# level2-cv-datacentric-cv-11\05_add_dataset\data\origin\validation-00000-of-00001-cc3c5779fe22e8ca.parquet
+df = pd.read_parquet('./data/origin/test-00000-of-00001-9c204eb3f4e11791.parquet')
 
 image_dir = f'./data/convert_data/cord_images_{num}'
 json_dir = f'./data/convert_data/cord_json_{num}'
@@ -42,12 +42,14 @@ parquet_files = [
     './data/origin/train-00000-of-00004-b4aaeceff1d90ecb.parquet',
     './data/origin/train-00001-of-00004-7dbbe248962764c5.parquet',
     './data/origin/train-00002-of-00004-688fe1305a55e5cc.parquet',
-    './data/origin/train-00003-of-00004-2d0cd200555ed7fd.parquet'
+    './data/origin/train-00003-of-00004-2d0cd200555ed7fd.parquet',
+    './data/origin/test-00000-of-00001-9c204eb3f4e11791.parquet',
+    './data/origin/validation-00000-of-00001-cc3c5779fe22e8ca.parquet'
 ]
 
 # 이미지와 JSON 파일을 저장할 경로
-image_dir = './data/convert_data/cord_images'
-json_dir = './data/convert_data/cord_json'
+image_dir = './data/convert_data/cord_images_new'
+json_dir = './data/convert_data/cord_json_new'
 os.makedirs(image_dir, exist_ok=True)
 os.makedirs(json_dir, exist_ok=True)
 
