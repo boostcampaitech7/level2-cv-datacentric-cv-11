@@ -10,8 +10,8 @@ import os
 # json_folder = f'./data/convert_data/cord_json_{num}/'
 # output_path = f'./data/convert_data/cord_json_convert_{num}.json'
 
-json_folder = f'./data/convert_data/cord_json/'
-output_path = f'./data/convert_data/cord_json_convert.json'
+json_folder = f'./data/convert_data/cord_json_new/'
+output_path = f'./data/convert_data/cord_json_convert_new.json'
 
 # 기존 정보
 info = {
@@ -111,8 +111,8 @@ now = now.strftime('%Y-%m-%d %H:%M:%S')
 # output_path = '/data/ephemeral/home/level2-cv-datacentric-cv-10/data/medical/ufo/_add_json.json'
 
 # cvat작업 coco포맷 json파일 -> ufo포맷
-input_path = f'./data/convert_data/cord_json_convert.json'
-output_path = f'./data/convert_data/cord_json_convert_ufo.json'
+input_path = f'./data/convert_data/cord_json_convert_new.json'
+output_path = f'./data/convert_data/cord_json_convert_ufo_new.json'
 
 ufo = {
     'images': {}

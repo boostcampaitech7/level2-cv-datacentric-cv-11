@@ -16,3 +16,5 @@
 *.jpg
 *.json
 *.parquet
+*.png
+03_train_val/data_relabeling/.DS_Store
