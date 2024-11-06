@@ -18,3 +18,11 @@
 *.parquet
 *.png
 03_train_val/data_relabeling/.DS_Store
+*.wandb
+*.log
+/06_train_custom/pths
+/06_train_custom/__pycache__
+/06_train_custom/model.py
+/06_train_custom/loss.py
+/06_train_custom/east_dataset.py
+/06_train_custom/detect.py

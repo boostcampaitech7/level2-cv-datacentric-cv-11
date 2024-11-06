@@ -9,14 +9,13 @@ import cv2
 import albumentations as A
 from torch.utils.data import Dataset
 from shapely.geometry import Polygon
+from RandAugment import RandAugment
 from numba import njit
-
 
 @njit
 def cal_distance(x1, y1, x2, y2):
     '''calculate the Euclidean distance'''
     return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
-
 
 @njit
 def move_points(vertices, index1, index2, r, coef):
@@ -51,7 +50,6 @@ def move_points(vertices, index1, index2, r, coef):
         vertices[y2_index] += ratio * length_y
     return vertices
 
-
 @njit
 def shrink_poly(vertices, coef=0.3):
     '''shrink the text region
@@ -62,18 +60,18 @@ def shrink_poly(vertices, coef=0.3):
         v       : vertices of shrinked text region <numpy.ndarray, (8,)>
     '''
     x1, y1, x2, y2, x3, y3, x4, y4 = vertices
-    r1 = min(cal_distance(x1, y1, x2, y2), cal_distance(x1, y1, x4, y4))
-    r2 = min(cal_distance(x2, y2, x1, y1), cal_distance(x2, y2, x3, y3))
-    r3 = min(cal_distance(x3, y3, x2, y2), cal_distance(x3, y3, x4, y4))
-    r4 = min(cal_distance(x4, y4, x1, y1), cal_distance(x4, y4, x3, y3))
+    r1 = min(cal_distance(x1,y1,x2,y2), cal_distance(x1,y1,x4,y4))
+    r2 = min(cal_distance(x2,y2,x1,y1), cal_distance(x2,y2,x3,y3))
+    r3 = min(cal_distance(x3,y3,x2,y2), cal_distance(x3,y3,x4,y4))
+    r4 = min(cal_distance(x4,y4,x1,y1), cal_distance(x4,y4,x3,y3))
     r = [r1, r2, r3, r4]
 
     # obtain offset to perform move_points() automatically
-    if cal_distance(x1, y1, x2, y2) + cal_distance(x3, y3, x4, y4) > \
-       cal_distance(x2, y2, x3, y3) + cal_distance(x1, y1, x4, y4):
-        offset = 0  # two longer edges are (x1y1-x2y2) & (x3y3-x4y4)
+    if cal_distance(x1,y1,x2,y2) + cal_distance(x3,y3,x4,y4) > \
+       cal_distance(x2,y2,x3,y3) + cal_distance(x1,y1,x4,y4):
+        offset = 0 # two longer edges are (x1y1-x2y2) & (x3y3-x4y4)
     else:
-        offset = 1  # two longer edges are (x2y2-x3y3) & (x4y4-x1y1)
+        offset = 1 # two longer edges are (x2y2-x3y3) & (x4y4-x1y1)
 
     v = vertices.copy()
     v = move_points(v, 0 + offset, 1 + offset, r, coef)
@@ -81,7 +79,6 @@ def shrink_poly(vertices, coef=0.3):
     v = move_points(v, 1 + offset, 2 + offset, r, coef)
     v = move_points(v, 3 + offset, 4 + offset, r, coef)
     return v
-
 
 @njit
 def get_rotate_mat(theta):
@@ -98,13 +95,12 @@ def rotate_vertices(vertices, theta, anchor=None):
     Output:
         rotated vertices <numpy.ndarray, (8,)>
     '''
-    v = vertices.reshape((4, 2)).T
+    v = vertices.reshape((4,2)).T
     if anchor is None:
-        anchor = v[:, :1]
+        anchor = v[:,:1]
     rotate_mat = get_rotate_mat(theta)
     res = np.dot(rotate_mat, v - anchor)
     return (res + anchor).T.reshape(-1)
-
 
 @njit
 def get_boundary(vertices):
@@ -121,7 +117,6 @@ def get_boundary(vertices):
     y_max = max(y1, y2, y3, y4)
     return x_min, x_max, y_min, y_max
 
-
 @njit
 def cal_error(vertices):
     '''default orientation is x1y1 : left-top, x2y2 : right-top, x3y3 : right-bot, x4y4 : left-bot
@@ -134,9 +129,8 @@ def cal_error(vertices):
     x_min, x_max, y_min, y_max = get_boundary(vertices)
     x1, y1, x2, y2, x3, y3, x4, y4 = vertices
     err = cal_distance(x1, y1, x_min, y_min) + cal_distance(x2, y2, x_max, y_min) + \
-        cal_distance(x3, y3, x_max, y_max) + cal_distance(x4, y4, x_min, y_max)
+          cal_distance(x3, y3, x_max, y_max) + cal_distance(x4, y4, x_min, y_max)
     return err
-
 
 @njit
 def find_min_rect_angle(vertices):
@@ -254,7 +248,7 @@ def rotate_all_pixels(rotate_mat, anchor_x, anchor_y, length):
     y_lin = y.reshape((1, x.size))
     coord_mat = np.concatenate((x_lin, y_lin), 0)
     rotated_coord = np.dot(rotate_mat, coord_mat - np.array([[anchor_x], [anchor_y]])) + \
-        np.array([[anchor_x], [anchor_y]])
+                                                   np.array([[anchor_x], [anchor_y]])
     rotated_x = rotated_coord[0, :].reshape(x.shape)
     rotated_y = rotated_coord[1, :].reshape(y.shape)
     return rotated_x, rotated_y
@@ -288,7 +282,7 @@ def adjust_height(img, vertices, ratio=0.2):
 
     new_vertices = vertices.copy()
     if vertices.size > 0:
-        new_vertices[:, [1, 3, 5, 7]] = vertices[:, [1, 3, 5, 7]] * (new_h / old_h)
+        new_vertices[:,[1,3,5,7]] = vertices[:,[1,3,5,7]] * (new_h / old_h)
     return img, new_vertices
 
 
@@ -308,7 +302,7 @@ def rotate_img(img, vertices, angle_range=10):
     img = img.rotate(angle, Image.BILINEAR)
     new_vertices = np.zeros(vertices.shape)
     for i, vertice in enumerate(vertices):
-        new_vertices[i, :] = rotate_vertices(vertice, -angle / 180 * math.pi, np.array([[center_x], [center_y]]))
+        new_vertices[i,:] = rotate_vertices(vertice, -angle / 180 * math.pi, np.array([[center_x],[center_y]]))
     return img, new_vertices
 
 
@@ -337,7 +331,8 @@ def filter_vertices(vertices, labels, ignore_under=0, drop_under=0):
 
     return new_vertices, new_labels
 
-
+#################################################################################
+#Seungsoo: add Sharpening
 def sharpening(image, strength):
     image = image.astype('uint8')
     gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -350,6 +345,7 @@ def sharpening(image, strength):
     output = cv2.filter2D(gray_image, -1, sharpening_kernel)
     output = cv2.cvtColor(output, cv2.COLOR_GRAY2RGB)
     return output
+#################################################################################
 
 
 class SceneTextDataset(Dataset):
@@ -395,7 +391,6 @@ class SceneTextDataset(Dataset):
         else:
             raise ValueError
         return osp.join(self.root_dir, f'{lang}_receipt', 'img', self.split)
-
     def __len__(self):
         return len(self.image_fnames)
 
@@ -428,8 +423,11 @@ class SceneTextDataset(Dataset):
         if image.mode != 'RGB':
             image = image.convert('RGB')
         image = np.array(image)
-
-        image = sharpening(image, strength=7)
+        
+        ##RandAugmentation########################################
+        transform_train = RandAugment(2,8)
+        image = transform_train(image)
+        #########################################################
 
         funcs = []
         if self.color_jitter:
@@ -437,6 +435,11 @@ class SceneTextDataset(Dataset):
         if self.normalize:
             funcs.append(A.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
         transform = A.Compose(funcs)
+        
+        #add sharpening#######################
+        image = np.array(image)
+        image = sharpening(image, strength=7)
+        ######################################
 
         image = transform(image=image)['image']
         word_bboxes = np.reshape(vertices, (-1, 4, 2))
