@@ -2,3 +2,4 @@ data/
 pths/
 trained_models/
 predictions/
+wandb/

@@ -15,6 +15,8 @@ from east_dataset import EASTDataset
 from dataset import SceneTextDataset
 from model import EAST
 import wandb #import wandb
+import warnings
+warnings.filterwarnings('ignore')
 
 
 def parse_args():
@@ -36,7 +38,7 @@ def parse_args():
     parser.add_argument('--max_epoch', type=int, default=150)
     parser.add_argument('--save_interval', type=int, default=5)
     parser.add_argument('--resume', type=str, default=None)
-    parser.add_argument('--split_name', type=str, default='train')
+    parser.add_argument('--split_name', type=str, default='relabel')
     
     args = parser.parse_args()
 
@@ -69,7 +71,7 @@ def do_training(data_dir, model_dir, device, image_size, input_size, num_workers
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[max_epoch // 2], gamma=0.1)
     
-    #이어서 학습하기
+    #이어서 학습하기 #############################################
     if resume is not None:
         resume_path = osp.join(model_dir,resume)
         model.load_state_dict(torch.load(resume_path,weights_only=True))
@@ -81,6 +83,7 @@ def do_training(data_dir, model_dir, device, image_size, input_size, num_workers
     # Set the project where this run will be logged
     project="my-awesome-project",
     # Track hyperparameters and run metadata
+    name = "train with randaugment3",
     config={
         "learning_rate": scheduler,
         "epochs": max_epoch,
@@ -123,7 +126,7 @@ def do_training(data_dir, model_dir, device, image_size, input_size, num_workers
             if not osp.exists(model_dir):
                 os.makedirs(model_dir)
 
-            ckpt_fpath = osp.join(model_dir, 'latest_1104.pth')
+            ckpt_fpath = osp.join(model_dir, 'latest_1105_with_randaug2.pth')
             torch.save(model.state_dict(), ckpt_fpath)
 
 

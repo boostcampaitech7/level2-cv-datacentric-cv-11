@@ -113,7 +113,10 @@ def synthtic_receipts(background,receipt):
     paper_image = cv2.resize(paper_image,(receipt_image.shape[1],receipt_image.shape[0]))
     back_mask = cv2.resize(back_mask,(img_mask.shape[1],img_mask.shape[0]))
 
-    img_masks = (cv2.blur(paper_image, (99, 99)) * np.expand_dims(back_mask,axis=-1) + paper_image* (np.expand_dims(1-back_mask,axis=-1))) * np.expand_dims(1- img_mask,axis=-1) + receipt_image * np.expand_dims(img_mask,axis=-1)
+    receipt_image = cv2.cvtColor(receipt_image, cv2.COLOR_BGR2GRAY)
+    receipt_image = cv2.merge([receipt_image]*3)
+
+    img_masks = (cv2.blur(paper_image,(int(paper_image.shape[0]/10),int(paper_image.shape[0]/10))) * np.expand_dims(back_mask,axis=-1) + paper_image* (np.expand_dims(1-back_mask,axis=-1))) * np.expand_dims(1- img_mask,axis=-1) + receipt_image * np.expand_dims(img_mask,axis=-1)
     return img_masks, receipt_json
 
 # 시각화
@@ -130,7 +133,7 @@ def main():
 
     for lang in languages:
         data_path = '/data/ephemeral/home/code/data/'
-        json_path = data_path + lang +'_receipt/ufo/' + 'train.json'
+        json_path = data_path + lang +'_receipt/ufo/' + 'relabel.json'
         image_files = glob.glob(data_path + lang +'_receipt/img/' + 'train' + '/*.jpg')
         image_files_list.append(image_files)
 
@@ -166,7 +169,8 @@ def main():
             output_path = os.path.join(output_dir, f'output_{id}.jpg')
             cv2.imwrite(output_path, image)
 
-            
+            new_json['images'].update({'output_'+str(id)+'.jpg': json_f})
+
             with open(new_json_path, 'w') as new_json_file:
                 json.dump(new_json, new_json_file, indent=4)
             

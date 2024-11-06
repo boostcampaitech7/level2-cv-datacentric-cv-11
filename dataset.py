@@ -10,6 +10,9 @@ import albumentations as A
 from torch.utils.data import Dataset
 from shapely.geometry import Polygon
 from numba import njit
+from RandAugment import RandAugment
+from torchvision.transforms import v2 as transforms
+import random
 
 @njit
 def cal_distance(x1, y1, x2, y2):
@@ -363,11 +366,11 @@ class SceneTextDataset(Dataset):
         self.split = split
         total_anno = dict(images=dict())
         for nation in self._lang_list:
-            with open(osp.join(root_dir, '{}_receipt/ufo/{}.json'.format(nation, split)), 'r', encoding='utf-8') as f:
+            with open(osp.join(root_dir, '{}_receipt/ufo/{}.json'.format(nation, self.split)), 'r', encoding='utf-8') as f:
                 anno = json.load(f)
             for im in anno['images']:
                 total_anno['images'][im] = anno['images'][im]
-
+        print(self.split)
         self.anno = total_anno
         self.image_fnames = sorted(self.anno['images'].keys())
 
@@ -414,6 +417,7 @@ class SceneTextDataset(Dataset):
         )
 
         image = Image.open(image_fpath)
+
         image, vertices = resize_img(image, vertices, self.image_size)
         image, vertices = adjust_height(image, vertices)
         image, vertices = rotate_img(image, vertices)
@@ -421,11 +425,11 @@ class SceneTextDataset(Dataset):
 
         if image.mode != 'RGB':
             image = image.convert('RGB')
-        image = np.array(image)
 
-        #add sharpening#######################
-        image = sharpening(image, strength=7)
-        ######################################
+        ##RandAugmentation########################################
+        transform_train = RandAugment(2,8)
+        image = transform_train(image)
+        #########################################################
 
         funcs = []
         if self.color_jitter:
@@ -433,6 +437,11 @@ class SceneTextDataset(Dataset):
         if self.normalize:
             funcs.append(A.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))
         transform = A.Compose(funcs)
+
+        #add sharpening#######################
+        image = np.array(image)
+        image = sharpening(image, strength=7)
+        ######################################
 
         image = transform(image=image)['image']
         word_bboxes = np.reshape(vertices, (-1, 4, 2))
