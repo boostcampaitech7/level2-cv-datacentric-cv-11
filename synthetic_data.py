@@ -130,16 +130,24 @@ def main():
     languages = ['chinese','japanese','thai','vietnamese']
     image_files_list = []
     json_files_list = []
+    mask_files_list = []
 
     for lang in languages:
         data_path = '/data/ephemeral/home/code/data/'
-        json_path = data_path + lang +'_receipt/ufo/' + 'relabel.json'
+        json_path = data_path + lang +'_receipt/ufo/' + 'relabel2.json'
+        mask_path = data_path + lang +'_receipt/ufo/' + 'relabel.json'
         image_files = glob.glob(data_path + lang +'_receipt/img/' + 'train' + '/*.jpg')
         image_files_list.append(image_files)
 
+        #구분선 없는 relabelling
         with open(json_path, 'r') as json_file:
             jf = json.load(json_file)
         json_files_list.append(jf)
+
+        #마스킹용 json (구분선 마스킹)
+        with open(mask_path, 'r') as mask_file:
+            mf = json.load(mask_file)
+        mask_files_list.append(mf) 
 
     for lang in languages:
         output_dir = data_path + lang + '_receipt/img/synthetic'
@@ -155,7 +163,7 @@ def main():
         for id in range(len(image_files)):
             back_lang = random.choice(change_language)
             back_image_files = image_files_list[languages.index(back_lang)]
-            back_jf = copy.deepcopy(json_files_list[languages.index(back_lang)])
+            back_jf = copy.deepcopy(mask_files_list[languages.index(back_lang)])
             try:
                 img_background = synthetic_preprocess(back_image_files[id],back_jf)
             except:
@@ -166,10 +174,11 @@ def main():
             image, json_f = synthtic_receipts(img_background,img_document)
 
             # 이미지 저장 (필요한 경우 주석 해제)
-            output_path = os.path.join(output_dir, f'output_{id}.jpg')
+            image_name = image_files[id].split('/')[-1]
+            output_path = os.path.join(output_dir, image_name)
             cv2.imwrite(output_path, image)
 
-            new_json['images'].update({'output_'+str(id)+'.jpg': json_f})
+            new_json['images'].update({str(image_name): json_f})
 
             with open(new_json_path, 'w') as new_json_file:
                 json.dump(new_json, new_json_file, indent=4)

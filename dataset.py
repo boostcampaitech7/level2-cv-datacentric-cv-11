@@ -361,13 +361,16 @@ class SceneTextDataset(Dataset):
                  drop_under_threshold=1,
                  color_jitter=True,
                  normalize=True):
-        self._lang_list = ['chinese', 'japanese', 'thai', 'vietnamese']
+        self._lang_list = ['chinese', 'japanese', 'thai', 'vietnamese','SROIE','cordv2','synthetic']
         self.root_dir = root_dir
         self.split = split
         total_anno = dict(images=dict())
         for nation in self._lang_list:
-            with open(osp.join(root_dir, '{}_receipt/ufo/{}.json'.format(nation, self.split)), 'r', encoding='utf-8') as f:
-                anno = json.load(f)
+            try:
+                with open(osp.join(root_dir, '{}_receipt/ufo/{}.json'.format(nation, self.split)), 'r', encoding='utf-8') as f:
+                    anno = json.load(f)
+            except:
+                pass
             for im in anno['images']:
                 total_anno['images'][im] = anno['images'][im]
         print(self.split)
@@ -390,6 +393,12 @@ class SceneTextDataset(Dataset):
             lang = 'thai'
         elif lang_indicator == 'vi':
             lang = 'vietnamese'
+        elif 'X' in fname:
+            lang = 'SROIE'
+        elif 'cu' in fname:
+            lang = 'cordv2'
+        elif 'output' in fname:
+            lang = 'synthetic'
         else:
             raise ValueError
         return osp.join(self.root_dir, f'{lang}_receipt', 'img', self.split)

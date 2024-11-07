@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument('--max_epoch', type=int, default=150)
     parser.add_argument('--save_interval', type=int, default=5)
     parser.add_argument('--resume', type=str, default=None)
-    parser.add_argument('--split_name', type=str, default='relabel')
+    parser.add_argument('--split_name', type=str, default='train')
     
     args = parser.parse_args()
 
@@ -83,7 +83,7 @@ def do_training(data_dir, model_dir, device, image_size, input_size, num_workers
     # Set the project where this run will be logged
     project="my-awesome-project",
     # Track hyperparameters and run metadata
-    name = "train with randaugment3",
+    name = "train with everything_(relabel2)",
     config={
         "learning_rate": scheduler,
         "epochs": max_epoch,
@@ -126,7 +126,7 @@ def do_training(data_dir, model_dir, device, image_size, input_size, num_workers
             if not osp.exists(model_dir):
                 os.makedirs(model_dir)
 
-            ckpt_fpath = osp.join(model_dir, 'latest_1105_with_randaug2.pth')
+            ckpt_fpath = osp.join(model_dir, 'latest_1107_with_synthetic.pth')
             torch.save(model.state_dict(), ckpt_fpath)
 
 

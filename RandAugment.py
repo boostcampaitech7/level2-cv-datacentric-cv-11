@@ -43,7 +43,6 @@ def augment_list():  # 16 oeprations and their ranges
         A.GaussNoise(mean = 1, p=1.0),
         A.RandomBrightnessContrast(brightness_limit=0, contrast_limit=(1 - 1.0, 1 + 1.0), p=1.0),
         A.RandomBrightnessContrast(brightness_limit=(1 - 1.0, 1 + 1.0), contrast_limit=0, p=1.0),
-        A.Posterize(num_bits=5, p=1.0),
         A.ColorJitter( p=1.0)
     ]
 
