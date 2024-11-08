@@ -13,7 +13,7 @@ from shapely.geometry import Polygon
 from numba import njit
 from skimage.util import random_noise
 
-from RandAugment import RandAugment
+from tools.RandAugment import RandAugment
 
 @njit
 def cal_distance(x1, y1, x2, y2):

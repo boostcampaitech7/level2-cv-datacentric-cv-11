@@ -9,7 +9,7 @@ import cv2
 from torch import cuda
 from model import EAST
 from tqdm import tqdm
-
+import numpy as np
 from detect import detect
 
 
@@ -27,6 +27,7 @@ def parse_args():
     parser.add_argument('--device', default='cuda:1' if cuda.is_available() else 'cpu')
     parser.add_argument('--input_size', type=int, default=2048)
     parser.add_argument('--batch_size', type=int, default=8)
+    parser.add_argument('--k_fold', type=int, default=5)
 
     args = parser.parse_args()
 
@@ -35,8 +36,20 @@ def parse_args():
 
     return args
 
+def sharpening(image, strength):
+    image = image.astype('uint8')
+    gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    b = (1 - strength) / 8
+    sharpening_kernel = np.array([[b, b, b],
+                                  [b, strength, b],
+                                  [b, b, b]])
+    kernel = np.ones((3, 3), np.uint8)
+    gray_image = cv2.erode(gray_image, kernel, iterations=1)
+    output = cv2.filter2D(gray_image, -1, sharpening_kernel)
+    output = cv2.cvtColor(output, cv2.COLOR_GRAY2RGB)
+    return output
 
-def do_inference(model, ckpt_fpath, data_dir, input_size, batch_size, split='test'):
+def do_inference(model, ckpt_fpath, data_dir, input_size, batch_size, split='test', sharpening=True):
     model.load_state_dict(torch.load(ckpt_fpath, map_location='cpu'))
     model.eval()
 
@@ -46,8 +59,11 @@ def do_inference(model, ckpt_fpath, data_dir, input_size, batch_size, split='tes
     
     for image_fpath in tqdm(sum([glob(osp.join(data_dir, f'{lang}_receipt/img/{split}/*')) for lang in LANGUAGE_LIST], [])):
         image_fnames.append(osp.basename(image_fpath))
+        if sharpening:
+            images.append(sharpening(cv2.imread(image_fpath), 7)[:, :, ::-1])
+        else: 
+            images.append(cv2.imread(image_fpath)[:, :, ::-1])
 
-        images.append(cv2.imread(image_fpath)[:, :, ::-1])
         if len(images) == batch_size:
             by_sample_bboxes.extend(detect(model, images, input_size))
             images = []
@@ -73,31 +89,48 @@ def main(args):
 
     print('Inference in progress')
 
-    # Iterate over each fold checkpoint
-    for fold in range(5):
-        ckpt_filename = f'latest_fold{fold}.pth'
-        ckpt_fpath = osp.join(args.model_dir, ckpt_filename)
+    if args.kfold is not None:
+        # Iterate over each fold checkpoint
+        for fold in range(args.kfold):
+            ckpt_filename = f'latest_fold{fold}.pth'
+            ckpt_fpath = osp.join(args.model_dir, ckpt_filename)
 
-        if not osp.exists(ckpt_fpath):
-            print(f"Checkpoint file does not exist: {ckpt_fpath}. Skipping this fold.")
-            continue
+            if not osp.exists(ckpt_fpath):
+                print(f"Checkpoint file does not exist: {ckpt_fpath}. Skipping this fold.")
+                continue
 
-        output_fname = f'output{fold}.csv'  # As per user request; consider using .json if appropriate
-        output_fpath = osp.join(args.output_dir, output_fname)
+            output_fname = f'output{fold}.csv'  # As per user request; consider using .json if appropriate
+            output_fpath = osp.join(args.output_dir, output_fname)
 
-        print(f'\nProcessing Fold {fold}:')
-        print(f'Loading checkpoint: {ckpt_fpath}')
+            print(f'\nProcessing Fold {fold}:')
+            print(f'Loading checkpoint: {ckpt_fpath}')
 
-        # Perform inference
-        ufo_result = do_inference(model, ckpt_fpath, args.data_dir, args.input_size,
-                                  args.batch_size, split='test')
+            # Perform inference
+            ufo_result = do_inference(model, ckpt_fpath, args.data_dir, args.input_size,
+                                    args.batch_size, split='test')
 
-        # Save the result to the corresponding output file
-        with open(output_fpath, 'w') as f:
+            # Save the result to the corresponding output file
+            with open(output_fpath, 'w') as f:
+                json.dump(ufo_result, f, indent=4)
+            
+            print(f'Saved inference results to {output_fpath}')
+    else:
+        # Get paths to checkpoint files
+        ckpt_fpath = osp.join(args.model_dir, 'ver3_aug_sharp_fold2_best.pth')
+
+        if not osp.exists(args.output_dir):
+            os.makedirs(args.output_dir)
+
+        print('Inference in progress')
+
+        ufo_result = dict(images=dict())
+        split_result = do_inference(model, ckpt_fpath, args.data_dir, args.input_size,
+                                    args.batch_size, split='test')
+        ufo_result['images'].update(split_result['images'])
+
+        output_fname = 'kfold_150.csv'
+        with open(osp.join(args.output_dir, output_fname), 'w') as f:
             json.dump(ufo_result, f, indent=4)
-        
-        print(f'Saved inference results to {output_fpath}')
-
 
 if __name__ == '__main__':
     args = parse_args()
