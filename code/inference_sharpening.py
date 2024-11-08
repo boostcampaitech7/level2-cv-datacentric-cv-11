@@ -3,14 +3,12 @@ import os.path as osp
 import json
 from argparse import ArgumentParser
 from glob import glob
-
 import torch
 import cv2
 from torch import cuda
 from model import EAST
 from tqdm import tqdm
 import numpy as np
-
 from detect import detect
 
 
@@ -21,11 +19,9 @@ LANGUAGE_LIST = ['chinese', 'japanese', 'thai', 'vietnamese']
 def parse_args():
     parser = ArgumentParser()
 
-    # Conventional args
     parser.add_argument('--data_dir', default=os.environ.get('SM_CHANNEL_EVAL', 'data'))
     parser.add_argument('--model_dir', default=os.environ.get('SM_CHANNEL_MODEL', 'trained_models'))
     parser.add_argument('--output_dir', default=os.environ.get('SM_OUTPUT_DATA_DIR', 'predictions'))
-
     parser.add_argument('--device', default='cuda' if cuda.is_available() else 'cpu')
     parser.add_argument('--input_size', type=int, default=2048)
     parser.add_argument('--batch_size', type=int, default=8)
@@ -55,9 +51,7 @@ def sharpening(image, strength):
 def do_inference(model, ckpt_fpath, data_dir, input_size, batch_size, split='test'):
     model.load_state_dict(torch.load(ckpt_fpath, map_location='cpu'))
     model.eval()
-
     image_fnames, by_sample_bboxes = [], []
-
     images = []
 
     for image_fpath in tqdm(sum([glob(osp.join(data_dir, f'{lang}_receipt/img/{split}/*')) for lang in LANGUAGE_LIST], [])):
@@ -80,16 +74,11 @@ def do_inference(model, ckpt_fpath, data_dir, input_size, batch_size, split='tes
 
 
 def main(args):
-    # Initialize model
     model = EAST(pretrained=False).to(args.device)
-
-    # Get paths to checkpoint files
-    ckpt_fpath = osp.join(args.model_dir, 'ver3_aug_sharp_fold2_best.pth')
+    ckpt_fpath = osp.join(args.model_dir, 'kfold_best.pth')
 
     if not osp.exists(args.output_dir):
         os.makedirs(args.output_dir)
-
-    print('Inference in progress')
 
     ufo_result = dict(images=dict())
     split_result = do_inference(model, ckpt_fpath, args.data_dir, args.input_size,

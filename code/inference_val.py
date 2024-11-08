@@ -24,11 +24,9 @@ def parse_args():
     parser.add_argument('--data_dir', default=os.environ.get('SM_CHANNEL_EVAL', 'data'))
     parser.add_argument('--model_dir', default=os.environ.get('SM_CHANNEL_MODEL', 'trained_models'))
     parser.add_argument('--output_dir', default=os.environ.get('SM_OUTPUT_DATA_DIR', 'predictions'))
-
     parser.add_argument('--device', default='cuda' if cuda.is_available() else 'cpu')
     parser.add_argument('--input_size', type=int, default=2048)
     parser.add_argument('--batch_size', type=int, default=8)
-
     args = parser.parse_args()
 
     if args.input_size % 32 != 0:
@@ -92,7 +90,7 @@ def main(args):
 
     ufo_result = dict(images=dict())
     split_result = do_inference(model, ckpt_fpath, args.data_dir, args.input_size,
-                                args.batch_size, split='train')  # Change split to 'val'
+                                args.batch_size, split='train')
     ufo_result['images'].update(split_result['images'])
 
     output_fname = 'val_data.json'  # Change to .json
