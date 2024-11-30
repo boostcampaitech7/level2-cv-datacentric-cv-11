@@ -115,13 +115,40 @@ OCR (Optimal Character Recognition) 기술은 사람이 직접 쓰거나 이미�
 # 🔄️ Directory
 
 ```
-├── utils
-├── .gitignore
-├── gitcommit_template.txt
-├── dataset.py
-├── inference.py
-├── train.py
-└── train_fp16.py
+├── README.md
+├── Visualize
+│   ├── bbox_viewer.ipynb
+│   ├── ensem_hyp_compare.ipynb
+│   ├── synthetic_visualize.ipynb
+│   └── visualize.ipynb
+├── dataset
+│   ├── cord
+│   │   ├── 01_convert.py
+│   │   ├── 02_json_to_coco.py
+│   │   ├── 03_coco_to_ufo.py
+│   │   ├── rename_custom_images.py
+│   │   └── rename_custom_json.py
+│   ├── kfold
+│   │   ├── create_kfold_json.py
+│   │   └── split_train_val.py
+│   ├── relabelling
+│   │   ├── COCO_to_UFO.py
+│   │   └── UFO_to_COCO.py
+│   └── synthetic
+│       └── synthetic_data.py
+├── requirements.txt
+├── src
+│   ├── dataset_add_custom.py
+│   ├── ensemble.py
+│   ├── inference.py
+│   └── train.py
+├── tree.txt
+└── utils
+    ├── RandAugment.py
+    ├── calculate_norm.py
+    ├── deteval.py
+    ├── ensemble_wbf.py
+    └── save_bbox.ipynb
 ```
 - 베이스라인 모델인 EAST 모델이 정의되어 있는 `model.py`, `loss.py`, `east_dataset.py`, `detect.py` 파일은 변경하지 않았으므로 업로드하지 않았습니다.
 - 실험의 결과를 확인하기 위한 기능들, 성능을 더 올리기 위한 기능들은 `utils`폴더 안에 모두 구성했습니다.
@@ -141,7 +168,7 @@ OCR (Optimal Character Recognition) 기술은 사람이 직접 쓰거나 이미�
 
 # 🤔 Wrap-Up Report
 
-- [Wrap-Up Report](etc/wrap_up_report.pdf)
+- [Wrap-Up Report](https://cactus-panama-b7c.notion.site/Data-Centric-OCR-Wrap-up-Report-54123f2d7cc2497d9e31b9f0619ea356?pvs=4)
 
 # ⚠️ Dataset 출처
 
