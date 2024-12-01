@@ -56,10 +56,9 @@
 |박윤준| EDA, Re-Labeling
 
 ## 🎙️ 프로젝트 소개
-
-<p align="center">
-<img src="etc/img1.png" width="400" height="300">
-</p>
+|일본어|중국어|베트남어|태국어|
+|:----:|:----:|:----:|:----:|
+|![image](https://github.com/user-attachments/assets/4d5c2aca-2156-4f26-925a-a924ebcbb70d) |![image](https://github.com/user-attachments/assets/71fcb327-1502-407d-9d56-467ec07994a0) |![image](https://github.com/user-attachments/assets/dfaeb40b-c1a1-450b-ac69-826f9247ca28) |![image](https://github.com/user-attachments/assets/bbaafe2f-b63f-4375-9a76-17f7de0b7b39) |
 
 OCR (Optimal Character Recognition) 기술은 사람이 직접 쓰거나 이미지 속에 있는 문자를 얻은 다음 이를 컴퓨터가 인식할 수 있도록 하는 기술입니다. 스마트폰으로 카드를 결제하거나, 카메라로 카드를 인식할 경우 자동으로 카드 번호가 입력되거나 주차장에 들어가면 차량 번호가 자동으로 인식되는 등 일상생활에 이미 보편적으로 사용되고 있습니다. 이번 대회는 OCR의 대표적인 model 중 하나인 EAST model을 활용하여 진료비 계산서 영수증안에 있는 글자를 인식하는 대회입니다. 
 
@@ -86,17 +85,11 @@ OCR (Optimal Character Recognition) 기술은 사람이 직접 쓰거나 이미�
 - 2024.11.04 ~ 2024.11.05 : Random Augmentation 실험, Re-Labelling 실험
 - 2024.11.06 ~ 2024.11.07 : Ensemble
 
-## 🥼 프로젝트 수행
 
-➡️ Link따라 들어가시면 보실 수 있습니다.
-
-1. [EDA](https://jjjuuuun.notion.site/EDA-076e97e382a2442aa041048f1ee0950c?pvs=4) 
-2. [Inferecne 분석 및 문제점 분석](https://jjjuuuun.notion.site/INFERENCE-e7827bc54b874372bc203a051e069ce5?pvs=4) 
-3. [Re-labeling](https://jjjuuuun.notion.site/Re-labeling-0f20a80e90fd423f836c7a213f653721?pvs=4)
-4. [Labeling Guidelines](https://jjjuuuun.notion.site/eb0db0b4d555417aafb7e116379b4447?pvs=4)
-5. [외부 데이터셋](https://jjjuuuun.notion.site/0d51b19cba3f47de81e0991caef79dd5?pvs=4) 
-6. [최종 발표자료](etc/presentation.pdf) 
-
+## 🤔 Wrap-Up Report
+링크에 들어가시면 프로젝트에 대한 랩업리포트를 확인할 수 있습니다.
+- [Wrap-Up Report](https://cactus-panama-b7c.notion.site/Data-Centric-OCR-Wrap-up-Report-54123f2d7cc2497d9e31b9f0619ea356?pvs=4)
+  
 ## 🗒️ 프로젝트 결과
 
 - 프로젝트 결과 최종적으로 아래와 같은 결과를 얻었습니다. (Public 11등, Private 11등)
@@ -166,11 +159,6 @@ OCR (Optimal Character Recognition) 기술은 사람이 직접 쓰거나 이미�
     | deteval  | 평가 metric을 구현한 코드입니다.  |
     | ensemble_wbf  | wbf 알고리즘으로 앙상블을 계산합니다.  |
     | save bbox | 예측한 bbox를 이미지로 저장하는 코드입니다. |
-
-
-# 🤔 Wrap-Up Report
-
-- [Wrap-Up Report](https://cactus-panama-b7c.notion.site/Data-Centric-OCR-Wrap-up-Report-54123f2d7cc2497d9e31b9f0619ea356?pvs=4)
 
 # ⚠️ Dataset 출처
 
