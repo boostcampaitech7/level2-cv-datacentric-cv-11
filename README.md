@@ -76,17 +76,15 @@ OCR (Optimal Character Recognition) 기술은 사람이 직접 쓰거나 이미�
 
 프로젝트 전체 일정
 
-- 2024.10.30 ~ 2024.11.07
+- 2024.10.28 ~ 2024.11.07
 
 프로젝트 세부 일정
 
-- 2023.05.22 ~ 2023.05.24 : OCR에 대해 알아보기, EDA
-- 2023.05.25 ~ 2023.05.25 : Train dataset과 Validation dataset 분리, Validation 코드 추가
-- 2023.05.26 ~ 2023.05.28 : Mixed Precision, Pickle 파일로 학습시간 단축
-- 2023.05.27 ~ 2023.05.28 : Train/Test dataset 살펴보기, Re-labeling, Augmentation 실험
-- 2023.05.29 ~ 2023.05.31 : Re-labeling, Pretrain용 Dataset 탐색, wandb에 detEval 추가
-- 2023.05.30 ~ 2023.05.31 : Re-labeling, Optimizer & Scheduler 탐색
-- 2023.06.01 ~ 2023.06.01 : Ensemble
+- 2024.10.28 ~ 2024.10.29 : OCR에 대해 알아보기, EDA
+- 2024.10.30 ~ 2024.11.01 : Train dataset과 Validation dataset 분리, Baseline 고도화
+- 2024.11.02 ~ 2024.11.03 : 합성데이터 제작, Cord 등 외부 데이터 수집
+- 2024.11.04 ~ 2024.11.05 : Random Augmentation 실험, Re-Labelling 실험
+- 2024.11.06 ~ 2024.11.07 : Ensemble
 
 ## 🥼 프로젝트 수행
 
@@ -151,20 +149,24 @@ OCR (Optimal Character Recognition) 기술은 사람이 직접 쓰거나 이미�
     └── save_bbox.ipynb
 ```
 - 베이스라인 모델인 EAST 모델이 정의되어 있는 `model.py`, `loss.py`, `east_dataset.py`, `detect.py` 파일은 변경하지 않았으므로 업로드하지 않았습니다.
-- 실험의 결과를 확인하기 위한 기능들, 성능을 더 올리기 위한 기능들은 `utils`폴더 안에 모두 구성했습니다.
-    
-    
+- `Visualize`: 시각화를 위한 코드입니다. 예측 결과, 앙상블 결과, 합성데이터를 시각화 합니다.
+- `dataset`: 학습데이터를 구축하기 위한 폴더입니다.
     | File(.ipynb/.py) | Description |
     | --- | --- |
-    | COCO to UFO | COCO format으로 작성된 json file을 UFO format으로 변환합니다. |
-    | UFO to COCO | UFO format으로 작성된 json file을 COCO format으로 변환합니다.  |
-    | Erase exclude tags and Polygons  | 필요없는 tag와 polygon을 지웁니다.  |
-    | check | Image에 대해 bbox가 어떻게 그려지는지 확인해보는 코드입니다.  |
-    | preprocessing | 학습 가속화를 위해 image 데이터를 pickle로 바꿉니다.  |
-    | speed_up_loader | Image를 pickle로 변경한 후 데이터 로딩 시간의 변화를 정리한 파일입니다.  |
-    | train_val_split | Train dataset과 Validation dataset으로 나눕니다.  |
-    | ensemble | WBF ensemble 코드입니다.  |
-    | wbf_ensemble | 기존 라이브러리 코드에서 하나의 모델만 예측한 bbox를 제거하는 코드를 추가한 ensemble 코드입니다.  |
+    | cord | Cord 데이터셋을 활용하기 위한 폴더입니다. |
+    | kfold | 데이터셋을 K-Fold로 나누어 저장합니다.  |
+    | relabelling  | 기존 데이터셋에 relabelling을 적용하기 위해 라벨의 유형을 바꿉니다.  |
+    | synthetic  | 기존 데이터셋을 활용해 이미지와 bbox를 합성한 합성 데이터셋을 생성합니다.  |
+- `src`: `train`, `inference`, `ensemble`을 위한 코드들입니다.
+- `utils`: 학습과정에서 필요한 기능들입니다.
+    | File(.ipynb/.py) | Description |
+    | --- | --- |
+    | RandAugment | 학습데이터에 random Augmentation을 적용합니다. |
+    | calculate norm | 이미지 정규화를 위한 평균과 표준편차를 계산합니다. |
+    | deteval  | 평가 metric을 구현한 코드입니다.  |
+    | ensemble_wbf  | wbf 알고리즘으로 앙상블을 계산합니다.  |
+    | save bbox | 예측한 bbox를 이미지로 저장하는 코드입니다. |
+
 
 # 🤔 Wrap-Up Report
 
