@@ -52,7 +52,7 @@
 |한승수| Augmentation, EDA
 |정아영| Utilizing external datasets(Sroie)
 |김대환| Utilizing external datasets(CORD)
-|김채리| Re-Labeling
+|김채리| EDA, Re-Labeling
 |박윤준| EDA, Re-Labeling
 
 ## 🎙️ 프로젝트 소개
