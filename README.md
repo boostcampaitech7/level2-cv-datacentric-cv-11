@@ -162,4 +162,4 @@ OCR (Optimal Character Recognition) 기술은 사람이 직접 쓰거나 이미�
 
 # ⚠️ Dataset 출처
 
-- 대회에서 사용된  `부스트캠프 AI Tech`임을 알려드립니다.
+- 대회에서 사용된 데이터셋은 `부스트캠프 AI Tech`에서 제공된 것입니다. 
