@@ -48,8 +48,8 @@
 
 |Name|Roles|
 |:-------:|:--------------------------------------------------------------:|
-|임동훈| KFold, Ensemble
-|한승수| Augmentation, EDA
+|임동훈| KFold, Ensemble, Augmentation
+|한승수| EDA, Augmentation
 |정아영| Utilizing external datasets(Sroie)
 |김대환| Utilizing external datasets(CORD)
 |김채리| EDA, Re-Labeling
@@ -92,7 +92,7 @@ OCR (Optimal Character Recognition) 기술은 사람이 직접 쓰거나 이미�
   
 ## 🗒️ 프로젝트 결과
 
-- 프로젝트 결과 최종적으로 아래와 같은 결과를 얻었습니다. (Public 11등, Private 11등)
+- 프로젝트 결과 최종적으로 아래와 같은 결과를 얻었습니다. (Public 11/23등, Private 11/23등)
     - Public
     
     ![public](https://github.com/user-attachments/assets/7f28fe34-acaf-48c9-bbbc-e05ba47e54ce)
